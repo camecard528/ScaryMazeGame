@@ -28,7 +28,7 @@ namespace ScaryMazeGame
 
         //pathing rectangles
 
-
+        Box mazeBox;
         Box playerBox;
 
         public gameScreen()
@@ -148,7 +148,25 @@ namespace ScaryMazeGame
             //TODO - compare collison with the rectangles.
             // COLLISION - between player and maze pathing
             Rectangle playerRec = new Rectangle(playerBox.x, playerBox.y, playerBox.size, playerBox.size);
-            Rectangle mazeRec = new Rectangle();
+            foreach(Box b in mazePaths)
+            {
+                b.recPath()
+            }
+            if (mazePaths.Count)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    gameLoop.Enabled = false;
+                    Rectangle boxRec = new Rectangle(boxesLeft[i].x, boxesLeft[i].y, boxesLeft[i].size, boxesLeft[i].size);
+
+                    if (playerRec.IntersectsWith(boxRec))
+                    {
+                        gameLoop.Enabled = false;
+                    }
+                }
+            }
+
+            Rectangle mazeRec = new Rectangle(mazeBox.x, mazeBox.y, mazeBox.width, mazeBox.length);
 
             // redraw screen
             Refresh();
@@ -158,7 +176,14 @@ namespace ScaryMazeGame
         {
             if ( x == 1)
             {
-                Box rec1(1,1,1,1);
+                mazeBox.recPath(20, 20, 20, 20);
+                mazePaths.Add(mazeBox);
+                mazeBox.recPath(0, 0, 0, 0);
+                mazePaths.Add(mazeBox);
+                mazeBox.recPath(80, 0, 0, 90);
+                mazePaths.Add(mazeBox);
+                x++;
+                newLevel = false;
             }
         }
 
