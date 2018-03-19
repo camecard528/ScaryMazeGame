@@ -42,7 +42,7 @@ namespace ScaryMazeGame
             int playerX = 250;
             int playerY = 475;
             int playerSize = 10;
-
+            
             playerBox = new Box(playerBrush, playerX, playerY, playerSize);
         }
 
@@ -148,25 +148,29 @@ namespace ScaryMazeGame
             //TODO - compare collison with the rectangles.
             // COLLISION - between player and maze pathing
             Rectangle playerRec = new Rectangle(playerBox.x, playerBox.y, playerBox.size, playerBox.size);
-            foreach(Box b in mazePaths)
+            Rectangle mazeRec = new Rectangle(mazeBox.x, mazeBox.y, mazeBox.width, mazeBox.length);
+
+            foreach (Box b in mazePaths)
             {
-                b.recPath()
+               // b.recPath(1, 1, 1, 1);
             }
-            if (mazePaths.Count)
+
+            if (mazePaths.Count < 1)
             {
                 for (int i = 0; i < 3; i++)
                 {
                     gameLoop.Enabled = false;
-                    Rectangle boxRec = new Rectangle(boxesLeft[i].x, boxesLeft[i].y, boxesLeft[i].size, boxesLeft[i].size);
 
-                    if (playerRec.IntersectsWith(boxRec))
+                    if (playerRec.IntersectsWith(mazeRec))
                     {
                         gameLoop.Enabled = false;
                     }
+                    else
+                    {
+                         gameLoop.Enabled = false;
+                    }
                 }
             }
-
-            Rectangle mazeRec = new Rectangle(mazeBox.x, mazeBox.y, mazeBox.width, mazeBox.length);
 
             // redraw screen
             Refresh();
@@ -174,14 +178,17 @@ namespace ScaryMazeGame
 
         private void newMaze(int x)
         {
-            if ( x == 1)
+            if ( x == 0)
             {
-                mazeBox.recPath(20, 20, 20, 20);
+                mazeBox = new Box(0, 0, 300, 100);
                 mazePaths.Add(mazeBox);
-                mazeBox.recPath(0, 0, 0, 0);
+               
+                mazeBox = new Box (300, 0, 100, 600);
                 mazePaths.Add(mazeBox);
-                mazeBox.recPath(80, 0, 0, 90);
+
+                mazeBox = new Box(300, 600, 300, 100);
                 mazePaths.Add(mazeBox);
+
                 x++;
                 newLevel = false;
             }
@@ -190,6 +197,11 @@ namespace ScaryMazeGame
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.FillRectangle(playerBox.sb, playerBox.x, playerBox.y, playerBox.size, playerBox.size);
+
+            foreach (Box b in mazePaths)
+            {
+                e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.width, b.length);
+            }
         }
     }
 }

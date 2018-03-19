@@ -13,7 +13,7 @@ namespace ScaryMazeGame
         public int x, y, size, width, length;
         public SolidBrush sb;
 
-        public void recPath( int _x, int _y, int _width, int _length)
+        public Box( int _x, int _y, int _width, int _length)
         {
             x = _x;
             y = _y;
