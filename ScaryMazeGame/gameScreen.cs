@@ -18,9 +18,12 @@ namespace ScaryMazeGame
 
         // list for the pathing for the maze
         List<Box> mazePaths = new List<Box>();
-
+        List<Box> mazeFinal = new List<Box>(); 
+        List<Box> loserPath = new List<Box>(); 
         //used to draw the box on screen
         SolidBrush boxBrush = new SolidBrush(Color.White);
+        SolidBrush finalBrush = new SolidBrush(Color.Blue);
+        SolidBrush badBrush = new SolidBrush(Color.Red);
 
         // level logic
         bool newLevel = true;
@@ -36,11 +39,12 @@ namespace ScaryMazeGame
             InitializeComponent();
         }
 
+        // set starting values for the player when the game loads / prepares object to accept from class. 
         private void gameScreen_Load(object sender, EventArgs e)
         {
             SolidBrush playerBrush = new SolidBrush(Color.Black);
-            int playerX = 250;
-            int playerY = 475;
+            int playerX = 10;
+            int playerY = 20;
             int playerSize = 10;
             
             playerBox = new Box(playerBrush, playerX, playerY, playerSize);
@@ -48,7 +52,7 @@ namespace ScaryMazeGame
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            //player 1 button presses
+            //player button presses
             switch (e.KeyCode)
             {
                 case Keys.Left:
@@ -82,7 +86,7 @@ namespace ScaryMazeGame
 
         private void GameScreen_KeyUp(object sender, KeyEventArgs e)
         {
-            //player 1 button releases
+            //player button releases
             switch (e.KeyCode)
             {
                 case Keys.Left:
@@ -145,63 +149,217 @@ namespace ScaryMazeGame
 
             }
 
-            //TODO - compare collison with the rectangles.
             // COLLISION - between player and maze pathing
             Rectangle playerRec = new Rectangle(playerBox.x, playerBox.y, playerBox.size, playerBox.size);
-            Rectangle mazeRec = new Rectangle(mazeBox.x, mazeBox.y, mazeBox.width, mazeBox.length);
+            Rectangle finalRec = new Rectangle(mazeBox.x, mazeBox.y, mazeBox.length, mazeBox.width);
 
+            //boolean to check is the box has collision with the path
+            Boolean isOk = false;
+            Boolean fkfkf = true; 
+            
             foreach (Box b in mazePaths)
             {
-               // b.recPath(1, 1, 1, 1);
-            }
+                Rectangle mazeRec = new Rectangle(b.x, b.y, b.width, b.length);
 
-            if (mazePaths.Count < 1)
-            {
-                for (int i = 0; i < 3; i++)
+                if (playerRec.IntersectsWith(mazeRec))
                 {
-                    gameLoop.Enabled = false;
-
-                    if (playerRec.IntersectsWith(mazeRec))
-                    {
-                        gameLoop.Enabled = false;
-                    }
-                    else
-                    {
-                         gameLoop.Enabled = false;
-                    }
+                    isOk = true; 
                 }
             }
 
+            foreach (Box b in loserPath)
+            {
+                Rectangle mazeRec = new Rectangle(b.x, b.y, b.width, b.length);
+
+                if (playerRec.IntersectsWith(mazeRec))
+                {
+                    
+                }
+                
+            }
+
+            // checks if the player is not in the pathing, and if they are in the end zone. 
+            if (!isOk)
+            {
+                if (playerRec.IntersectsWith(finalRec))
+                {
+                    gameLevel++; 
+                    newLevel = true;
+                }
+                else
+                {
+                    gameLoop.Enabled = false;
+                }
+            }
+            
             // redraw screen
             Refresh();
         }
 
+        // LEVELS - This is the code for the maze designs, using a class to create the objects, 
+        // then adding them to a list. 
         private void newMaze(int x)
         {
             if ( x == 0)
             {
-                mazeBox = new Box(0, 0, 300, 100);
+                mazeBox = new Box(0, 10, 300, 100);
                 mazePaths.Add(mazeBox);
                
-                mazeBox = new Box (300, 0, 100, 600);
+                mazeBox = new Box (300, 10, 100, 600);
                 mazePaths.Add(mazeBox);
 
                 mazeBox = new Box(300, 600, 300, 100);
                 mazePaths.Add(mazeBox);
 
-                x++;
+                mazeBox = new Box(600, 300, 100, 600);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(600, 300, 300, 100);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(900, 300, 300, 100);
+                mazeFinal.Add(mazeBox);
+                
+                x = 0;
+                newLevel = false;
+            }
+
+            if ( x == 1)
+            {
+                SolidBrush playerBrush = new SolidBrush(Color.Black);
+                mazePaths.Clear();
+                mazeFinal.Clear();
+
+                mazeBox = new Box(0, 10, 300, 50);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(300, 10, 50, 500);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(200, 460, 100, 50);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(150, 460, 50, 200);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(150, 660, 600, 30);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(750, 300, 20, 390);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(750, 300, 150, 20);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(900, 260, 100, 100);
+                mazeFinal.Add(mazeBox);
+
+                playerBox = new Box(playerBrush, 1, 15, 10);
+                x = 0;
+                newLevel = false;
+
+            }
+
+            if ( x == 2)
+            {
+                SolidBrush playerBrush = new SolidBrush(Color.Black);
+                mazePaths.Clear();
+                mazeFinal.Clear();
+
+                mazeBox = new Box(0, 10, 300, 25);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(300, 10, 25, 75);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(250, 75, 75, 25);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(250, 75, 25, 75);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(175, 125, 75, 25);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(175, 125, 15, 100);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(175, 225, 100, 25);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(275, 225, 100, 100);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(375, 300, 100, 25);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(475, 300, 15, 150);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(475, 450, 50, 15);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(525, 450, 15, 50);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(525, 500, 50, 15);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(575, 500, 10, 50);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(575, 550, 50, 10);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(625, 400, 5, 160);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(625, 400, 105, 5);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(730, 360, 5, 40);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(730, 372, 5, 33);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(730, 360, 200, 5);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(930, 370, 10, 20);
+                mazePaths.Add(mazeBox);
+
+                mazeBox = new Box(325, 10, 625, 25);
+                loserPath.Add(mazeBox);
+
+                mazeBox = new Box(925, 10, 25, 290);
+                loserPath.Add(mazeBox);
+
+                mazeBox = new Box(900, 300, 300, 100);
+                mazeFinal.Add(mazeBox);
+
+                playerBox = new Box(playerBrush, 1, 15, 10);
+                x = 0;
                 newLevel = false;
             }
         }
 
+        // paint method to draw all of the objects to the screen.
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(playerBox.sb, playerBox.x, playerBox.y, playerBox.size, playerBox.size);
-
             foreach (Box b in mazePaths)
             {
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.width, b.length);
             }
+            foreach (Box b in mazeFinal)
+            {
+                e.Graphics.FillRectangle(finalBrush, b.x, b.y, b.width, b.length);
+            }
+            foreach (Box b in loserPath)
+            {
+                e.Graphics.FillRectangle(badBrush, b.x, b.y, b.width, b.length);
+            }
+            e.Graphics.FillRectangle(playerBox.sb, playerBox.x, playerBox.y, playerBox.size, playerBox.size);
         }
     }
 }
