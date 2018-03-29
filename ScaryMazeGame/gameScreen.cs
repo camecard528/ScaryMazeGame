@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace ScaryMazeGame
 {
@@ -24,15 +25,24 @@ namespace ScaryMazeGame
         SolidBrush boxBrush = new SolidBrush(Color.White);
         SolidBrush finalBrush = new SolidBrush(Color.Blue);
         SolidBrush badBrush = new SolidBrush(Color.Red);
+        SolidBrush textBrush = new SolidBrush(Color.Black);
+
+        Font drawFont = new Font("Arial", 12);
 
         // level logic
         bool newLevel = true;
         int gameLevel = 0;
+        bool scareTrigger = false; 
 
         //pathing rectangles
-
         Box mazeBox;
         Box playerBox;
+
+        //Time to complete Stopwatch
+        Stopwatch timeWatch = new Stopwatch();
+        long eTime;
+        long tTime;
+        long sTime = 60000;
 
         public gameScreen()
         {
@@ -48,6 +58,7 @@ namespace ScaryMazeGame
             int playerSize = 10;
             
             playerBox = new Box(playerBrush, playerX, playerY, playerSize);
+            timeWatch.Start();
         }
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -155,7 +166,7 @@ namespace ScaryMazeGame
 
             //boolean to check is the box has collision with the path
             Boolean isOk = false;
-            Boolean fkfkf = true; 
+            Boolean fakepath = true; 
             
             foreach (Box b in mazePaths)
             {
@@ -186,9 +197,58 @@ namespace ScaryMazeGame
                     gameLevel++; 
                     newLevel = true;
                 }
+
+                else if (scareTrigger == true)
+                {
+                    gameLoop.Enabled = false;
+                    // open JumpScare screen
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    JumpScare js = new JumpScare();
+                    f.Controls.Add(js);
+                }
+
                 else
                 {
                     gameLoop.Enabled = false;
+                    // open failscreen
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    FailScreen fs = new FailScreen();
+
+                    f.Controls.Add(fs);
+                }
+            }
+
+            eTime = timeWatch.ElapsedMilliseconds;
+            tTime = (sTime - eTime) / 1000;
+
+            if(tTime == 0)
+            {
+                if (scareTrigger == true)
+                {
+                    gameLoop.Stop();
+                    //send user to the jumpscare
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    JumpScare js = new JumpScare();
+
+                    f.Controls.Add(js);
+                }
+
+                else
+                {
+                    gameLoop.Stop();
+                    // send the user to the fail screen 
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    FailScreen fs = new FailScreen();
+
+                    f.Controls.Add(fs);
                 }
             }
             
@@ -341,12 +401,14 @@ namespace ScaryMazeGame
                 playerBox = new Box(playerBrush, 1, 15, 10);
                 x = 0;
                 newLevel = false;
+                scareTrigger = true;
             }
         }
 
         // paint method to draw all of the objects to the screen.
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
+            e.Graphics.DrawString(tTime + "", drawFont, textBrush, 600, 100);
             foreach (Box b in mazePaths)
             {
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.width, b.length);
