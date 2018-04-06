@@ -7,18 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Media;
 
 namespace ScaryMazeGame
 {
-    public partial class startScreen : UserControl
+    public partial class FailScreen : UserControl
     {
-        public startScreen()
+        public FailScreen()
         {
             InitializeComponent();
         }
 
-        private void startButton_Click(object sender, EventArgs e)
+        private void FailScreen_Load(object sender, EventArgs e)
         {
+            SoundPlayer player = new SoundPlayer(Properties.Resources.sad);
+            player.Play();
+        }
+
+        private void yesButton_Click(object sender, EventArgs e)
+        {
+            // Send the user to the gameScreen again   
             // f is the form that this control is on
             Form f = this.FindForm();
             f.Controls.Remove(this);
@@ -33,13 +41,22 @@ namespace ScaryMazeGame
             f.Controls.Add(gs);
 
             gs.Focus();
-           
         }
 
-        private void exitButton_Click(object sender, EventArgs e)
+        private void noButton_Click(object sender, EventArgs e)
         {
-            //code to close program
+            //escort the user out of the program
             Application.Exit();
+        }
+
+        private void nomoreLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tryLabel_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

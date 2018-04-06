@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace ScaryMazeGame
 {
@@ -14,25 +15,49 @@ namespace ScaryMazeGame
     {
         //values here
         //player1 button control keys - DO NOT CHANGE
-        Boolean leftArrowDown, downArrowDown, rightArrowDown, upArrowDown, bDown, nDown, mDown, spaceDown;
+        Boolean leftArrowDown, downArrowDown, rightArrowDown, upArrowDown, bDown, nDown, mDown, spaceDown, escDown;
 
         // list for the pathing for the maze
         List<Box> mazePaths = new List<Box>();
         List<Box> mazeFinal = new List<Box>(); 
-        List<Box> loserPath = new List<Box>(); 
+       // List<Box> loserPath = new List<Box>(); 
         //used to draw the box on screen
         SolidBrush boxBrush = new SolidBrush(Color.White);
         SolidBrush finalBrush = new SolidBrush(Color.Blue);
         SolidBrush badBrush = new SolidBrush(Color.Red);
+        SolidBrush textBrush = new SolidBrush(Color.Black);
+
+        Font drawFont = new Font("Arial", 12);
 
         // level logic
         bool newLevel = true;
         int gameLevel = 0;
+        bool scareTrigger = false; 
 
         //pathing rectangles
-
         Box mazeBox;
         Box playerBox;
+
+        //Time to complete Stopwatch
+        Stopwatch timeWatch = new Stopwatch();
+        long eTime;
+        long tTime;
+        long sTime = 60000;
+
+        private void yesButton_Click(object sender, EventArgs e)
+        {
+            contLabel.Visible = false;
+            quitLabel.Visible = false;
+            yesButton.Visible = false;
+            noButton.Visible = false;
+            gameLoop.Start();
+        }
+
+        private void noButton_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+        
 
         public gameScreen()
         {
@@ -42,12 +67,19 @@ namespace ScaryMazeGame
         // set starting values for the player when the game loads / prepares object to accept from class. 
         private void gameScreen_Load(object sender, EventArgs e)
         {
+            // set the pause menu to be invisible
+            contLabel.Visible = false;
+            quitLabel.Visible = false;
+            yesButton.Visible = false;
+            noButton.Visible = false;
+
             SolidBrush playerBrush = new SolidBrush(Color.Black);
             int playerX = 10;
             int playerY = 20;
             int playerSize = 10;
             
             playerBox = new Box(playerBrush, playerX, playerY, playerSize);
+            timeWatch.Start();
         }
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -79,6 +111,9 @@ namespace ScaryMazeGame
                 case Keys.Space:
                     spaceDown = true;
                     break;
+                case Keys.Escape:
+                    escDown = true;
+                    break; ;
                 default:
                     break;
             }
@@ -112,6 +147,9 @@ namespace ScaryMazeGame
                     break;
                 case Keys.Space:
                     spaceDown = false;
+                    break;
+                case Keys.Escape:
+                    escDown = false;
                     break;
                 default:
                     break;
@@ -149,13 +187,23 @@ namespace ScaryMazeGame
 
             }
 
+            //check if the user wants to pause the game
+            if (escDown)
+            {
+                gameLoop.Stop();
+                contLabel.Visible = true;
+                quitLabel.Visible = true;
+                yesButton.Visible = true;
+                noButton.Visible = true;
+                //pauseScreen();
+            }
+
             // COLLISION - between player and maze pathing
             Rectangle playerRec = new Rectangle(playerBox.x, playerBox.y, playerBox.size, playerBox.size);
             Rectangle finalRec = new Rectangle(mazeBox.x, mazeBox.y, mazeBox.length, mazeBox.width);
 
             //boolean to check is the box has collision with the path
             Boolean isOk = false;
-            Boolean fkfkf = true; 
             
             foreach (Box b in mazePaths)
             {
@@ -167,17 +215,7 @@ namespace ScaryMazeGame
                 }
             }
 
-            foreach (Box b in loserPath)
-            {
-                Rectangle mazeRec = new Rectangle(b.x, b.y, b.width, b.length);
-
-                if (playerRec.IntersectsWith(mazeRec))
-                {
-                    
-                }
-                
-            }
-
+            
             // checks if the player is not in the pathing, and if they are in the end zone. 
             if (!isOk)
             {
@@ -186,9 +224,83 @@ namespace ScaryMazeGame
                     gameLevel++; 
                     newLevel = true;
                 }
-                else
+                else if (scareTrigger == true)
                 {
                     gameLoop.Enabled = false;
+                    // create new instance
+                    JumpScare js = new JumpScare();
+
+                    // Remove the screen
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    //center screen 
+                    js.Location = new Point((f.Width - js.Width) / 2, (f.Height - js.Height) / 2);
+
+                    // add the screen
+                    f.Controls.Add(js);
+                    return;
+                }
+                else
+                {
+                    // create new instance
+                    FailScreen fs = new FailScreen();
+
+                    //stop the loop
+                    gameLoop.Enabled = false;
+                    
+                    // remoce the failscreen
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    //center screen 
+                    fs.Location = new Point((f.Width - fs.Width) / 2, (f.Height - fs.Height) / 2);
+
+                    f.Controls.Add(fs);
+                }
+            }
+
+            eTime = timeWatch.ElapsedMilliseconds;
+            tTime = (sTime - eTime) / 1000;
+
+            if(tTime == 0)
+            {
+                if (scareTrigger == true)
+                {
+                    gameLoop.Enabled = false;
+                    
+                    // create new instance
+                    JumpScare js = new JumpScare();
+
+                    // Remove the screen
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    //center screen 
+                    js.Location = new Point((f.Width - js.Width) / 2, (f.Height - js.Height) / 2);
+
+                    // add the screen
+                    f.Controls.Add(js);
+                }
+
+                else
+                {
+                    gameLoop.Stop();
+                    
+                    // create new instance
+                    FailScreen fs = new FailScreen();
+
+                    //stop the loop
+                    gameLoop.Enabled = false;
+
+                    // remoce the failscreen
+                    Form f = this.FindForm();
+                    f.Controls.Remove(this);
+
+                    //center screen 
+                    fs.Location = new Point((f.Width - fs.Width) / 2, (f.Height - fs.Height) / 2);
+
+                    f.Controls.Add(fs);
                 }
             }
             
@@ -329,11 +441,11 @@ namespace ScaryMazeGame
                 mazeBox = new Box(930, 370, 10, 20);
                 mazePaths.Add(mazeBox);
 
-                mazeBox = new Box(325, 10, 625, 25);
-                loserPath.Add(mazeBox);
+               // mazeBox = new Box(325, 10, 625, 25);
+                //loserPath.Add(mazeBox);
 
-                mazeBox = new Box(925, 10, 25, 290);
-                loserPath.Add(mazeBox);
+               // mazeBox = new Box(925, 10, 25, 290);
+                //loserPath.Add(mazeBox);
 
                 mazeBox = new Box(900, 300, 300, 100);
                 mazeFinal.Add(mazeBox);
@@ -341,12 +453,20 @@ namespace ScaryMazeGame
                 playerBox = new Box(playerBrush, 1, 15, 10);
                 x = 0;
                 newLevel = false;
+                scareTrigger = true;
             }
         }
+
+        // PAUSE - this is the code for the pause screen
+        //private void pauseScreen()
+        //{
+            
+        //}
 
         // paint method to draw all of the objects to the screen.
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
+            e.Graphics.DrawString("REMAINING TIME: " + tTime + "s", drawFont, textBrush, 820, 20);
             foreach (Box b in mazePaths)
             {
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.width, b.length);
@@ -355,10 +475,10 @@ namespace ScaryMazeGame
             {
                 e.Graphics.FillRectangle(finalBrush, b.x, b.y, b.width, b.length);
             }
-            foreach (Box b in loserPath)
-            {
-                e.Graphics.FillRectangle(badBrush, b.x, b.y, b.width, b.length);
-            }
+        //    foreach (Box b in loserPath)
+        //    {
+        //        e.Graphics.FillRectangle(badBrush, b.x, b.y, b.width, b.length);
+        //    }
             e.Graphics.FillRectangle(playerBox.sb, playerBox.x, playerBox.y, playerBox.size, playerBox.size);
         }
     }
