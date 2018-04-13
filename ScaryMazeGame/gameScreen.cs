@@ -190,11 +190,17 @@ namespace ScaryMazeGame
             //check if the user wants to pause the game
             if (escDown)
             {
+                escDown = false;
                 gameLoop.Stop();
-                contLabel.Visible = true;
-                quitLabel.Visible = true;
-                yesButton.Visible = true;
-                noButton.Visible = true;
+                //Form f = this.FindForm();
+                PauseForm pf = new PauseForm(gameLoop);
+                pf.Location = new Point((this.Width - pf.Width) / 2, (this.Height - pf.Height) / 2);
+                pf.Show();
+                return;
+                //contLabel.Visible = true;
+                //quitLabel.Visible = true;
+                //yesButton.Visible = true;
+                //noButton.Visible = true;
                 //pauseScreen();
             }
 
